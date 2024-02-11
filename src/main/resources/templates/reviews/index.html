@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">    
+	<head>
+		<div th:replace="~{fragment :: meta}"></div>   
+		<div th:replace="~{fragment :: styles}"></div>
+		<title>レビュー一覧</title>   
+	</head>
+	
+	<body>
+		<div class="nagoyameshi-wrapper">
+			<!-- ヘッダー -->
+			<div th:replace="~{fragment :: header}"></div>
+             
+			<main>
+				<div class="container nagoyameshi-container pb-5">
+					<div class="row justify-content-center">
+						<nav class="my-3" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0">                        
+								<li class="breadcrumb-item"><a th:href="@{/}">ホーム</a></li>
+								<li class="breadcrumb-item"><a th:href="@{/restaurants}">店舗一覧</a></li>
+								<li class="breadcrumb-item"><a th:href="@{/restaurants/__${restaurant.getId()}__}">店舗詳細</a></li>
+								<li class="breadcrumb-item active" aria-current="page">レビュー</li>
+							</ol>
+						</nav>  
+						
+						<h1 class="text-center">レビューページ</h1>
+						
+						<div th:if="${successMessage}" class="alert alert-info">
+							<span th:text="${successMessage}"></span>
+						</div> 
+						
+						<div class="col-md-8">
+							<div class="row justify-content-between">
+								<div th:if="${reviewPage.getTotalPages() > 1}" class="fs-5 mb-2 col" th:text="${'レビュー件数：' + reviewPage.getTotalElements() + '件' + '（' + (reviewPage.getNumber() + 1) + ' / ' + reviewPage.getTotalPages() + ' ページ）'}"></div> 
+								<div th:unless="${reviewPage.getTotalPages() > 1}" class="fs-5 mb-2 col" th:text="${'レビュー件数：' + reviewPage.getTotalElements() + '件'}"></div>
+								<div class="col d-flex justify-content-end mb-2" sec:authorize="hasRole('ROLE_SUBSCRIBERS')">
+									<a th:href="@{/restaurants/__${restaurant.getId()}__/reviews/register}" class="btn text-white shadow-sm nagoyameshi-btn">レビューを投稿する</a>
+								</div>
+							</div>
+						</div>
+						                        
+						<div class="col col-md-8">                                                 
+							<div class="mb-3" th:each="review : ${reviewPage}">
+								<div class="link-dark nagoyameshi-card-link">
+									<div class="card h-100">   
+										<div class="row g-0"> 
+											<div class="col-md-8">                                                                                                                        
+												<div class="card-body">                                    
+													<h3 class="card-title mb-3" th:text="${review.getUser().Name}"></h3>                                            
+  
+													<hr class="mb-3">
+                                                      
+													
+													<div class="d-flex mb-3">
+														<div class="star-rating ml-2">
+															<div id="reviewStar" class="star-rating-front review-star">★★★★★</div>
+															<div class="star-rating-back">★★★★★</div>
+														</div> 
+														<div class="average-score-display" th:text="'('+ ${review.getReviewStar()} + '点)'"></div>
+													</div>
+													
+													<script th:inline="javascript"> 
+ 														var reviewNum = /*[[${review.getReviewStar()}]]*/"reviewStar";
+ 														var collection = document.getElementsByClassName('review-star');
+ 														var number = collection.length - 1; 
+ 														var get_reviewStar = collection[number];
+ 														get_reviewStar.style.width = reviewNum * 20 + "%";
+													</script>                                   
+                                                     
+													<p class="card-text mb-2">
+														<small class="text-muted" th:text="${review.getReviewComment()}"></small>                                                      
+													</p>   
+                                    
+												</div>
+											</div>
+										</div>
+									</div>    
+								</div>            
+							</div> 
+
+                                                                                 
+             
+							<!-- ページネーション -->
+							<div th:if="${reviewPage.getTotalPages() > 1}" class="d-flex justify-content-center">
+								<nav aria-label="店舗一覧ページ">
+									<ul class="pagination">
+										<li class="page-item">
+											<span th:if="${reviewPage.isFirst()}" class="page-link disabled">前</span>
+											<a th:unless="${reviewPage.isFirst()}" th:href="@{/restaurants/__${restaurant.getId()}__/reviews(page = ${reviewPage.getNumber() - 1})}" class="page-link nagoyameshi-page-link">前</a>
+										</li>
+										<li th:each="i : ${#numbers.sequence(0, reviewPage.getTotalPages() - 1)}" class="page-item">
+											<span th:if="${i == reviewPage.getNumber()}" class="page-link active nagoyameshi-active" th:text="${i + 1}"></span>
+											<a th:unless="${i == reviewPage.getNumber()}" th:href="@{/restaurants/__${restaurant.getId()}__/reviews(page = ${i})}" class="page-link nagoyameshi-page-link" th:text="${i + 1}"></a>
+										</li>
+										<li class="page-item">                        
+											<span th:if="${reviewPage.isLast()}" class="page-link disabled">次</span>
+											<a th:unless="${reviewPage.isLast()}" th:href="@{/restaurants/__${restaurant.getId()}__/reviews(page = ${reviewPage.getNumber() + 1})}" class="page-link nagoyameshi-page-link">次</a>
+										</li>
+									</ul>
+								</nav> 
+							</div>                                      
+						</div>
+					</div>
+				</div>  
+			</main>
+             
+			<!-- フッター -->
+			<div th:replace="~{fragment :: footer}"></div>
+		</div>    
+         
+		<div th:replace="~{fragment :: scripts}"></div>  
+	</body>
+</html>

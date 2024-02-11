@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	<head>
+		<div th:replace="~{fragment :: meta}"></div>   
+		<div th:replace="~{fragment :: styles}"></div>	
+		<title>NAGOYA Meshi</title>	
+	</head>
+
+	<body>
+		<div class="nagoyameshi-wrapper">
+			<!-- ヘッダー -->
+			<div th:replace="~{fragment :: header}"></div>
+             
+			<main>
+				<div class="container pt-4 pb-5 nagoyameshi-container">
+					<div th:if="${param.loggedIn}" class="alert alert-info">
+						ログインしました。
+					</div>  
+                     
+					<div th:if="${param.loggedOut}" class="alert alert-info">
+						ログアウトしました。
+					</div>
+					
+					<div th:if="${successMessage}" class="alert alert-info">
+						<span th:text="${successMessage}"></span>
+					</div>
+					
+					<div th:if="${deleteMessage}" class="alert alert-info">
+						<span th:text="${deleteMessage}"></span>
+					</div>
+					
+					
+					<div class="row justify-content-center mb-5" sec:authorize="hasRole('ROLE_ADMIN')">
+						<div class="col-xl-4 col-lg-4 col-md-6">
+							<h1 class="text-center mb-3">売上管理</h1>                                                                                       
+							<table class="table">
+								<tbody>                                                     
+									<tr>
+										<th>登録会員者数</th>
+										<td>
+											<span th:text="${userTotal} + ' 人'"></span>
+										</td>                                     
+									</tr>
+									<tr>
+										<th>無料会員者数</th>
+										<td>
+											<span th:text="${generalCount} + ' 人'"></span>
+										</td>                                     
+									</tr>
+									<tr>
+										<th>有料会員者数</th>
+										<td>
+											<span th:text="${subscriberCount} + ' 人'"></span>
+										</td>                                     
+									</tr>                                                                                                                                                                                                                                                                                                                                                                          
+								</tbody>
+							</table>
+							<h2 class="text-end mb-3" th:text="'月間売上 : ' + ${subscriberCount} * 300 + ' 円'"></h2>   
+						</div>
+					</div>
+					
+					
+					<div class="d-flex justify-content-center">                                            
+						<form method="get" th:action="@{/restaurants}" class="mb-5 nagoyameshi-search-form">
+							<div class="input-group">
+								<input type="text" class="form-control" name="keyword" th:value="${keyword}" placeholder="店舗名・エリア">
+								<button type="submit" class="btn text-white shadow-sm nagoyameshi-btn">検索</button> 
+							</div>               
+						</form>                        
+					</div>                                                                                                  
+                    
+                    <!--                                  
+					<h2 class="text-center mb-3">新着</h2>
+					<div class="row row-cols-lg-5 row-cols-2 g-3 mb-5">                                        
+						<div class="col" th:each="popularRestaurant : ${popularRestaurants}">
+							<a th:href="@{/restaurants/__${popularRestaurant.getId()}__}" class="link-dark nagoyameshi-card-link">
+								<div class="card h-100">                                                                        
+									<img th:if="${popularRestaurant.getImageName()}" th:src="@{/storage/__${popularRestaurant.getImageName()}__}" class="card-img-top nagoyameshi-vertical-card-image" alt="店舗画像">                                     
+									<img th:unless="${popularRestaurant.getImageName()}" th:src="@{/images/noImage.png}" class="card-img-top nagoyameshi-vertical-card-image" alt="NO IMAGE">                                                                                                                        
+									<div class="card-body">                                    
+										<h3 class="card-title" th:text="${popularRestaurant.getName()}"></h3>
+										<p class="card-text mb-1">
+											<small class="text-muted" th:text="${popularRestaurant.getAddress()}"></small>                                            
+										</p>
+										<p class="card-text">
+											<span th:text="${#numbers.formatInteger(popularRestaurant.getLowerPrice(), 1, 'COMMA') + ' ~ ' + #numbers.formatInteger(popularRestaurant.getUpperPrice(), 1, 'COMMA') +'円'}"></span>                                            
+										</p>                                    
+									</div>
+								</div>    
+							</a>            
+						</div>                                               
+					</div>
+					-->
+					
+					<h2 class="text-center mb-4">評価の高い店</h2>
+					<div class="row row-cols-lg-5 row-cols-2 g-3 mb-5">                                        
+						<div class="col" th:each="topReviewRestaurant : ${topReviewRestaurants}">
+							<a th:href="@{/restaurants/__${topReviewRestaurant.get().getId()}__}" class="link-dark nagoyameshi-card-link">
+								<div class="card h-100">                                                                        
+									<img th:if="${topReviewRestaurant.get().getImageName()}" th:src="@{/storage/__${topReviewRestaurant.get().getImageName()}__}" class="card-img-top nagoyameshi-vertical-card-image" alt="店舗画像">                                     
+									<img th:unless="${topReviewRestaurant.get().getImageName()}" th:src="@{/images/noImage.png}" class="card-img-top nagoyameshi-vertical-card-image" alt="NO IMAGE">                                                                                                                        
+									<div class="card-body">                                    
+										<h3 class="card-title" th:text="${topReviewRestaurant.get().getName()}"></h3>
+										
+										<div class="d-flex mb-3">
+											<div class="star-rating">
+												<div id="reviewStar" class="star-rating-front review-star">★★★★★</div>
+												<div class="star-rating-back">★★★★★</div>
+											</div>
+											<div class="average-score-display" th:text="'('+ ${eachReview.get(topReviewRestaurant.get().getId())} + '点)'"></div>
+										</div>
+										<script th:inline="javascript"> 
+ 											var reviewNum = /*[[${eachReview.get(topReviewRestaurant.get().getId())}]]*/"reviewAverage";
+ 											var collection = document.getElementsByClassName('review-star');
+ 											var number = collection.length - 1; 
+ 											var get_reviewStar = collection[number];
+ 											get_reviewStar.style.width = reviewNum * 20 + "%";
+										</script>
+										
+										<p class="card-text mb-1">
+											<small class="text-muted" th:text="${topReviewRestaurant.get().getAddress()}"></small>                                            
+										</p>
+										<p class="card-text">
+											<span th:text="${#numbers.formatInteger(topReviewRestaurant.get().getLowerPrice(), 1, 'COMMA') + ' ~ ' + #numbers.formatInteger(topReviewRestaurant.get().getUpperPrice(), 1, 'COMMA') +'円'}"></span>                                            
+										</p>                                    
+									</div>
+								</div>    
+							</a>            
+						</div>                                               
+					</div>
+					
+					<div class="row justify-content-center">
+						<div class="col-xl-4 col-lg-4 col-md-6">                    
+							<h2 class="text-center mb-3">カテゴリから探す</h2>                                                                    
+							<table class="table">
+								<tbody>                                                     
+									<tr>
+										<th><img class="nagoyameshi-logo me-1" th:src="@{/images/stew.png}" alt="煮込み料理"></th>
+										<td>
+											<a th:href="@{/restaurants?category=煮込み料理}">煮込み料理</a>
+										</td>                                     
+									</tr>
+									<tr>
+										<th><img class="nagoyameshi-logo me-1" th:src="@{/images/potFood.png}" alt="鍋料理"></th>
+										<td>
+											<a th:href="@{/restaurants?category=鍋料理}">鍋料理</a>
+										</td>                                     
+									</tr>
+									<tr>
+										<th><img class="nagoyameshi-logo me-1" th:src="@{/images/grilledFood.png}" alt="焼き物料理"></th>
+										<td>
+											<a th:href="@{/restaurants?category=焼き物料理}">焼き物料理</a>
+										</td>                                     
+									</tr>
+									<tr>
+										<th><img class="nagoyameshi-logo me-1" th:src="@{/images/donburi.png}" alt="丼物"></th>
+										<td>
+											<a th:href="@{/restaurants?category=丼物}">丼物</a>
+										</td>                                     
+									</tr>
+									<tr>
+										<th><img class="nagoyameshi-logo me-1" th:src="@{/images/noodle.png}" alt="麺料理"></th>
+										<td>
+											<a th:href="@{/restaurants?category=麺料理}">麺料理</a>
+										</td>                                     
+									</tr>  
+									<tr>
+										<th><img class="nagoyameshi-logo me-1" th:src="@{/images/seaFood.png}" alt="海鮮料理"></th>
+										<td>
+											<a th:href="@{/restaurants?category=海鮮料理}">海鮮料理</a>
+										</td>                                     
+									</tr> 
+									<tr>
+										<th><img class="nagoyameshi-logo me-1" th:src="@{/images/friedFood.png}" alt="揚げ物料理"></th>
+										<td>
+											<a th:href="@{/restaurants?category=揚げ物料理}">揚げ物料理</a>
+										</td>                                     
+									</tr>                                                                                                                                                                                                                                                                                                                                                                          
+								</tbody>
+							</table>  
+						</div>
+					</div>
+                     
+
+					
+				</div>
+			</main>
+             
+			<!-- フッター -->
+			<div th:replace="~{fragment :: footer}"></div>
+		</div>    
+         
+		<div th:replace="~{fragment :: scripts}"></div>
+	</body>
+</html>
