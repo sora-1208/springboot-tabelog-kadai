@@ -113,3 +113,7 @@ INSERT IGNORE INTO reviews (id, restaurant_id, user_id, review_comment, review_s
 INSERT IGNORE INTO reviews (id, restaurant_id, user_id, review_comment, review_star) VALUES (15, 2, 4, '微妙', 2);
 INSERT IGNORE INTO reviews (id, restaurant_id, user_id, review_comment, review_star) VALUES (16, 2, 5, 'はやい、うまい、やすい', 5);
 INSERT IGNORE INTO reviews (id, restaurant_id, user_id, review_comment, review_star) VALUES (17, 2, 6, 'おいしい', 4);
+
+
+-- companyテーブル
+INSERT IGNORE INTO company (id, name, establish, postal_code, address, phone_number, president, employee, capital) VALUES (1, '株式会社nagoyameshi', '2000年 1月 1日', '455-0052', '愛知県名古屋市港区いろは町X-XX-XX', '012-345-6789', '名古屋 太郎', 758, 1000);
